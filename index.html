@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>자기소개 카드 생성기</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+    .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h1 { text-align: center; }
+    label { display: block; margin-top: 1em; font-weight: bold; }
+    input[type='text'], input[type='file'] { width: 100%; padding: 8px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc; }
+    .traits-group { margin-top: 1em; }
+    .traits-group span { display: inline-block; margin: 3px 8px 3px 0; }
+    #card-preview { margin-top: 2em; padding: 1em; border: 1px solid #ccc; border-radius: 12px; background: #fff; }
+    .tag { background: #aee0f5; padding: 3px 10px; border-radius: 10px; font-size: 0.9em; display: inline-block; margin: 2px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>자기소개 카드 생성기</h1>
+  <label>닉네임 <input id="nickname" type="text" /></label>
+  <label>트위터 ID <input id="twitter_id" type="text" /></label>
+  <label>한 줄 소개 <input id="bio" type="text" /></label>
+  <label>프로필 이미지 <input id="profile_img" type="file" accept="image/*" /></label>
+  <label>커버 이미지 <input id="cover_img" type="file" accept="image/*" /></label>
+
+  <div class="traits-group">
+    <label>트윗 성향</label>
+    <span><input type="checkbox" value="창작" class="trait" /> 창작</span>
+    <span><input type="checkbox" value="소비" class="trait" /> 소비</span>
+    <span><input type="checkbox" value="사담" class="trait" /> 사담</span>
+    <span><input type="checkbox" value="욕트" class="trait" /> 욕트</span>
+  </div>
+
+  <div class="traits-group">
+    <label>장르</label>
+    <span><input type="checkbox" value="2D" class="trait" /> 2D</span>
+    <span><input type="checkbox" value="2.5D" class="trait" /> 2.5D</span>
+    <span><input type="checkbox" value="3D" class="trait" /> 3D</span>
+  </div>
+
+  <div class="traits-group">
+    <label>덕질 성향</label>
+    <span><input type="checkbox" value="1차" class="trait" /> 1차</span>
+    <span><input type="checkbox" value="2차" class="trait" /> 2차</span>
+    <span><input type="checkbox" value="드림" class="trait" /> 드림</span>
+    <span><input type="checkbox" value="유사" class="trait" /> 유사</span>
+  </div>
+
+  <div class="traits-group">
+    <label>커플 성향</label>
+    <span><input type="checkbox" value="HL" class="trait" /> HL</span>
+    <span><input type="checkbox" value="GL" class="trait" /> GL</span>
+    <span><input type="checkbox" value="BL" class="trait" /> BL</span>
+    <span><input type="checkbox" value="NCP" class="trait" /> NCP</span>
+    <span><input type="checkbox" value="ALL" class="trait" /> ALL</span>
+  </div>
+
+  <div class="traits-group">
+    <label>리버스</label>
+    <span><input type="checkbox" value="리버시블" class="trait" /> 리버시블</span>
+    <span><input type="checkbox" value="지뢰" class="trait" /> 지뢰</span>
+    <span><input type="checkbox" value="상관X" class="trait" /> 상관X</span>
+  </div>
+
+  <button onclick="generateCard()">카드 생성</button>
+
+  <div id="card-preview"></div>
+</div>
+
+<script>
+function toBase64(file, callback) {
+  const reader = new FileReader();
+  reader.onloadend = () => callback(reader.result);
+  reader.readAsDataURL(file);
+}
+
+function generateCard() {
+  const nickname = document.getElementById('nickname').value;
+  const twitterId = document.getElementById('twitter_id').value;
+  const bio = document.getElementById('bio').value;
+  const traits = Array.from(document.querySelectorAll('.trait:checked')).map(el => el.value);
+  const profileFile = document.getElementById('profile_img').files[0];
+  const coverFile = document.getElementById('cover_img').files[0];
+
+  if (!profileFile || !coverFile) {
+    alert('이미지를 모두 선택해주세요!');
+    return;
+  }
+
+  toBase64(profileFile, (profileSrc) => {
+    toBase64(coverFile, (coverSrc) => {
+      const tagsHTML = traits.map(tag => `<span class='tag'>${tag}</span>`).join(' ');
+      const html = \`
+        <div style="border-radius:12px; overflow:hidden; border:1px solid #ccc;">
+          <img src="\${coverSrc}" style="width:100%; height:200px; object-fit:cover;" />
+          <div style="padding: 1em;">
+            <img src="\${profileSrc}" style="width:100px;height:100px;border-radius:50%;border:3px solid white;position:relative;top:-50px;margin-bottom:-40px;background:white;" />
+            <h2>\${nickname} <small>@\${twitterId}</small></h2>
+            <p>\${bio}</p>
+            <div>\${tagsHTML}</div>
+          </div>
+        </div>\`;
+      document.getElementById('card-preview').innerHTML = html;
+    });
+  });
+}
+</script>
+</body>
+</html>
